@@ -18,17 +18,6 @@ $idp = $_GET['@'];
 
 $pro = $conn->query("SELECT * FROM proyectos WHERE idp = '".$idp."'");
 $row = $pro->fetch();
-
-
-
-incluir_file_var("modelo/recursos.php");
-$modelo = new Recursos($conn); 
-
-
-$horas_asignadas = $modelo->getHorasAsignadas($userid ,$idp  );
-$horas_consumidas = $modelo->getHorasConsumidas($userid ,$idp  );
-
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -87,83 +76,20 @@ Administrador
 </div>
 </div>
 
-<div class="col-md-4">
-<p>
-Asignar horas al proyecto
-</p>
-<?php
-
-$recurso = $row_u['id'];
-$fecha = date('Y-m-d');
-
-if(isset($_POST['add'])){
-	if(!empty($_POST['fechah']) && !empty($_POST['horas'])){
-
-
-		$hora = $modelo->getHoraValorByID($recurso );
-
-		$add = $conn->prepare("INSERT INTO horaspro (idpro, idrecurso, fechah, totalh, hdate, id_usuario_hora) VALUES (:pro, :rec, :fechah, :total, :date, :hora)");
-		$add->bindValue(':pro', $idp);
-		$add->bindValue(':rec', $recurso);
-		$add->bindValue(':fechah', $_POST['fechah']);
-		$add->bindValue(':total', $_POST['horas']);
-		$add->bindValue(':date', $fecha);
-		$add->bindValue(':hora', $hora);
-		$add->execute();
-
-		echo '<div class="mb-3">Hora asignada perfectamente</div>';
-	} else {
-		echo 'Error';
-	}
-}
-?>
-
-<?php if($row['pestado'] != '3' && $row['pestado'] != '2' ):?>
-<form action="" method="POST">
-<div class="form-row">
-<div class="form-group col-md-7">
-<input type="date" name="fechah" class="form-control">
-</div>
-<div class="form-group col-md-5">
-<input type="text" name="horas" class="form-control" placeholder="Asignar horas" maxlength="2">
-</div>
-</div>
-<button name="add" class="btn btn-primary btn-sm">Agregar horas</button>
-</form>
-</div>
-<?php endif ?>
-
-<div class="col-md-3">
+<div class="col-md-7">
 Horas
 <hr>
 
 <?php
-$list = $conn->query("SELECT
-	*,
-	sum( horaspro.totalh ) AS totalh 
-FROM
-	proyectos
-	INNER JOIN horaspro ON horaspro.idpro = proyectos.idp
-	INNER JOIN recurso ON horaspro.idrecurso = recurso.id 
-	INNER JOIN recurso_hora as rh on horaspro.id_usuario_hora = rh.id
-WHERE
-	idp = '$idp' 
-GROUP BY
-	recurso.rnombre");
+$list = $conn->query("SELECT *, sum(horaspro.totalh) AS totalh FROM proyectos INNER JOIN horaspro ON horaspro.idpro = proyectos.idp INNER JOIN recurso ON horaspro.idrecurso = recurso.id WHERE idp = '".$idp."' GROUP BY recurso.rnombre");
 $rfila = $list->fetch();
 ?>
 <div class="">
-Valor por hora: $<?=$rfila['v_hora'];?><br>
-
-
-Horas Asignadas: <?=$horas_asignadas;?>h<br>
-
-Horas Consumidas: <?=$horas_consumidas;?>h<br>
-
+Valor por hora: $<?=$rfila['rvhora'];?><br>
 Total de horas: <?=$rfila['totalh'];?> hs.
 <hr>
 <?php
-$cuenta = $rfila['v_hora']*$rfila['totalh'];
+$cuenta = $rfila['rvhora']*$rfila['totalh'];
 // echo 'Total a cobrar $'.$cuenta;
 ?>
 </div>
@@ -176,9 +102,25 @@ $glist = $conn->query("SELECT * FROM horaspro WHERE idrecurso = '".$userid."' AN
 while ($fila = $glist->fetch()) {
 ?>
 <div class="d-flex w-100 justify-content-between">
-<?=$fila['fechah'];?>
-<span><?=$fila['totalh'];?> hs.</span>
+
+<span>  <b>Fecha de las Horas Cargadas:  </b>  <?= $fila['fechah']; ?> hs.</span>
 </div>
+
+<div class="d-flex w-100 justify-content-between">
+
+<span>  <b>Fecha Creacion:  </b>  <?= $fila['hdate']; ?> hs.</span>
+</div>
+
+
+<div class="d-flex w-100 justify-content-between">
+
+<span>  <b>Cantidad de Horas:  </b>  <?= $fila['totalh']; ?> hs.</span>
+</div>
+
+
+<br> 
+<hr>
+
 <?php
 }
 ?>

@@ -5,7 +5,7 @@ include '../../crm/connect.php';
 
 if(isset($_POST['login'])){
     if(!empty($_POST['user']) && !empty($_POST['pass'])){
-       $stmt = $conn->prepare("SELECT * FROM recurso WHERE rusuario=:user AND rpass=:pass");
+       $stmt = $conn->prepare("SELECT * FROM recurso WHERE rusuario=:user AND rpass=:pass and status = '1' ");
        $stmt->execute(array(':user'=>$_POST['user'], ':pass'=>md5($_POST['pass'])));
        $fila = $stmt->fetch();       
             if($fila > 0){

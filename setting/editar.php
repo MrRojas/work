@@ -1,4 +1,5 @@
 <?php
+ini_set('display_erros', 'On');
 session_start();
 if($_SESSION['logueado'] != "SI"){
 header('location: sign-in');
@@ -7,13 +8,54 @@ exit();
 
 include '../crm/connect.php';
 
-Helpers::validaPermiso('setting');
+Helpers::validaPermiso('setting/editar');
+
+if( isset( $_POST['cancelar'] )  ){  header("location:index.php"); }
+
+incluir_file_var("modelo/usuarios.php");
+$modelo = new Usuarios($conn); 
+
+
 
 $user = $_SESSION['usuario'];
 // User
 $userl = $conn->query("SELECT * FROM usuario WHERE nombre = '".$user."'");
 $row_u = $userl->fetch();
+
+$id = base64_decode($_GET['id']); 
+
+$data = $modelo->getUsuarioByID( $id ); 
+
+$valor_hora = $modelo->getHoraValorByID($id)['v_hora']; 
+
+if( isset( $_POST['add'] )  ){
+
+
+	if( !empty($_POST['pass']) && !empty($_POST['cate']) && !empty($_POST['email']) && !empty($_POST['v_hora']) ){
+			extract($_POST);
+		
+			$modelo->update( array(
+				'id'=> $id ,
+				'status' => $status ,
+				'pass'   => $pass ,
+				'cate'   => $cate ,
+				'email'  => $email
+				)); 
+
+
+		echo '<div class="mb-3">El recurso se edito correctamente</div>';
+		Helpers::refreshPage();
+
+		$modelo->updateValorHoraID($id , $_POST['v_hora']) ;
+
+	} else {
+		echo 'Error';
+	}
+}
+
 ?>
+
+<script >   </script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,97 +93,48 @@ $row_u = $userl->fetch();
 
 <div class="container">
 <div class="row">
-<!--div class="col-sm-3">
-<div class="card">
-<div class="card-body">
-<h4 class="card-title">250</h4>
-<p class="card-text">Proyectos</p>
-</div>
+
 </div>
 </div>
 
-<div class="col-sm-3">
-<div class="card">
-<div class="card-body">
-<h4 class="card-title">400</h4>
-<p class="card-text">Usuarios</p>
-</div>
-</div>
-</div>
-
-<div class="col-sm-3">
-<div class="card">
-<div class="card-body">
-<h4 class="card-title">$344140</h4>
-<p class="card-text">Ingresos</p>
-</div>
-</div>
-</div>
-
-<div class="col-sm-3">
-<div class="card">
-<div class="card-body">
-<h4 class="card-title">$15340</h4>
-<p class="card-text">Gastos</p>
-</div>
-</div>
-</div-->
-</div>
-</div>
 
 <div class="container">
 <div class="row">
 <div class="col-sm-12 col-md-8 mt-4 mb-4">
 <div class="p-4 bg-white">
-<h5>Nuevo usuario</h5>
-<p class="mt-4">
-<?php
-$fecha = date('d-m-Y');
-if(isset($_POST['add'])){
+<h5>Editar usuario</h5>
 
-	incluir_file_var("modelo/usuarios.php");
-	$modelo = new Usuarios($conn); 
-
-	if(!empty($_POST['nombre']) && !empty($_POST['pass']) && !empty($_POST['cate']) ){
-		$add = $conn->prepare("INSERT INTO usuario (nombre, pass, cate, email, ufecha) VALUES (:nombre, :pass, :cate, :email, :fecha)");
-		$add->bindValue(':nombre', strtolower($_POST['nombre']));
-		$add->bindValue(':pass', md5($_POST['pass']));
-		$add->bindValue(':cate', $_POST['cate']);
-		$add->bindValue(':email', $_POST['mail']);
-		$add->bindValue(':fecha', $fecha);
-		$add->execute();
-
-
-		echo '<div class="mb-3">El recurso se agreg&oacute; correctamente</div>';
-
-		$modelo->updateValorHora(strtolower($_POST['nombre']) , $_POST['v_hora']) ;
-
-	} else {
-		echo 'Error';
-	}
-}
-?>
 <form action="" method="POST">
 <div class="form-row">
 <div class="form-group col-md-8">
-<input type="text" name="nombre" class="form-control" placeholder="Nombre de usuario (max 40 car)" maxlength="40">
+<input disabled  <?= Helpers::addValue($data['nombre'])  ?> type="text" name="nombre" class="form-control" placeholder="Nombre de usuario (max 40 car)" maxlength="40">
 </div>
 
 <div class="form-group col-md-4">
 <select name="cate" class="form-control">
 <option>Categoria</option>
-<option value="1">Administrador</option>
-<option value="2">GPC</option>
+<option <?= Helpers::selectOption( $data['cate']  , '1') ?>  value="1">Administrador</option>
+<option <?= Helpers::selectOption( $data['cate']  , '2') ?> value="2">GPC</option>
 </select>
 </div>
 </div>
 
 <div class="form-group"><input type="password" name="pass" class="form-control" placeholder="Contrase&ntilde;a"></div>
-<div class="form-group"><input type="text" name="mail" class="form-control" placeholder="Email"></div>
+<div class="form-group"><input <?= Helpers::addValue($data['email'])  ?> type="text" name="email" class="form-control" placeholder="Email"></div>
 
-<div class="form-group"><input type="text" name="v_hora" class="form-control" placeholder="Valor por Hora"></div>
+<div class="form-group"><input <?= Helpers::addValue($valor_hora)  ?> type="text" name="v_hora" class="form-control" placeholder="Valor por Hora"></div>
+
+
+<div class="form-group col-md-4">
+<select name="status" class="form-control">
+<option <?= Helpers::selectOption( $data['status']  , '1') ?>  value="1">Activo</option>
+<option <?= Helpers::selectOption( $data['status']  , '0') ?> value="0">Inactivo</option>
+</select>
+</div>
+
 
 <button name="add" class="btn btn-primary btn-sm">Agregar</button>
+<button name="cancelar"   class="btn btn-danger btn-sm">Cancelar</button>
 </form>
 </p>
 </div>
@@ -184,8 +177,7 @@ if($fila['cate'] == '1') {
 </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" ></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>

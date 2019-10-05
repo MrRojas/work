@@ -5,12 +5,13 @@ include '../crm/connect.php';
 
 if(isset($_POST['login'])){
     if(!empty($_POST['user']) && !empty($_POST['pass'])){
-       $stmt = $conn->prepare("SELECT * FROM usuario WHERE nombre=:user AND pass=:pass");
+       $stmt = $conn->prepare("SELECT * FROM usuario WHERE nombre=:user AND pass=:pass AND status = '1' ");
        $stmt->execute(array(':user'=>$_POST['user'], ':pass'=>md5($_POST['pass'])));
        $fila = $stmt->fetch();       
             if($fila > 0){
              $_SESSION['logueado'] = "SI";
              $_SESSION['usuario']  = $fila['nombre'];
+             $_SESSION['rol']  = $fila['cate'];
              header('location: ../');
             } else {
                 echo '<div class="error">Account not found. Please check your username and password and try again.</div>';

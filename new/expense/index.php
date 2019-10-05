@@ -7,6 +7,8 @@ exit();
 
 include '../../crm/connect.php';
 
+Helpers::validaPermiso('expense');
+
 $user = $_SESSION['usuario'];
 // User
 $userl = $conn->query("SELECT * FROM usuario WHERE nombre = '".$user."'");
@@ -32,35 +34,7 @@ $row_u = $userl->fetch();
 </a>
 </h2>
 
-<a class="btn btn-sm border rounded-pill" href="../../"><i class="fas fa-bars"></i> Panel</a>
-<div class="btn-group">
-<div class="dropdown">
-<button class="btn btn-light dropdown-toggle btn-sm rounded-pill text-white" style="background-color: #ff9900; border: 1px solid #ff9900;" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-<i class="far fa-file-alt"></i> Agregar
-</button>
-<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-<a class="dropdown-item" href="../project_name">Registrar Titulo de Proyecto</a>
-<a class="dropdown-item" href="../project">Nuevo Proyecto</a>
-<a class="dropdown-item" href="../client">Nuevo Cliente</a>
-<a class="dropdown-item" href="../expense">Categoria Gastos</a>
-</div>
-</div>
-</div>
-<!--a class="btn btn-sm border rounded-pill" href="#"><i class="fas fa-cog"></i> Setting</a-->
-<a class="btn btn-sm border rounded-pill" href="../../out"><i class="fas fa-sign-out-alt"></i> LogOut</a>
-</div>
-<div class="col-sm-12 col-md-4 mt-4 mb-4 text-capitalize">
-<div class="text-right">
-<span class="btn btn-success btn-sm rounded-pill" style="background-color: #6FCD17; font-weight: bold; border: 1px solid #6FCD17;">
-<?php if($row_u['cate'] == '1') { ?>
-Admin
-<?php } else { ?>
-GSP
-<?php } ?>
-</span>
-<span class="btn btn-outline-light text-muted btn-sm rounded-pill" style="background-color: #fff; font-weight: bold; border: 1px solid #fff;">
-<?=$user;?>
-</span>
+<?php incluir_file_var('include/menu.php' , array('opcion' => 'expense' ) ) ?>
 
 <!--div class="p-3 mt-2">
 <span class="small">data</span>

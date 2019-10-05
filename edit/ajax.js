@@ -26,14 +26,17 @@
                 document.getElementById('dropdownMenuButton2').classList.remove('status-0');
                 document.getElementById('dropdownMenuButton2').classList.remove('status-1');
                 document.getElementById('dropdownMenuButton2').classList.remove('status-2');
+                document.getElementById('dropdownMenuButton2').classList.remove('status-3');
 
-                document.getElementById('dropdownMenuButton2').classList.add('status-' + data.status);
+                document.getElementById('dropdownMenuButton2').classList.add('status-' + data.status == '3' ?  '2' : data.status );
 
                 if ( data.status == 0 ) {
                     document.getElementById('dropdownMenuButton2').innerHTML = 'En Proceso';
                 } else if ( data.status == 1 ) {
                     document.getElementById('dropdownMenuButton2').innerHTML = 'En Pausa';
-                } else {
+                } else if ( data.status == 3 ) {
+                    document.getElementById('dropdownMenuButton2').innerHTML = 'Inactivo';
+                }else {
                     document.getElementById('dropdownMenuButton2').innerHTML = 'Cancelado';
                 }
 

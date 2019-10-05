@@ -93,7 +93,9 @@ GSP
                     echo "En Proceso";
                 } else if ($row['pestado'] == 1) {
                     echo "En Pausa";
-                } else {
+                } else if ($row['pestado'] == 3) {
+                    echo "Inactivo";
+                }else {
                     echo "Cancelado";
                 }
             ?>
@@ -102,6 +104,7 @@ GSP
             <a class="dropdown-item item-state" href="#" data-state="0" data-id=<?php echo $idp ?>>En Proceso</a>
             <a class="dropdown-item item-state" href="#" data-state="1" data-id=<?php echo $idp ?>>En Pausa</a>
             <a class="dropdown-item item-state" href="#" data-state="2" data-id=<?php echo $idp ?>>Cancelado</a>
+            <a class="dropdown-item item-state" href="#" data-state="3" data-id=<?php echo $idp ?>>Inactivo</a>
         </div>
     </div>
 </div>

@@ -18,7 +18,8 @@
             var tr = ` 
                 <tr>
                     <td>${ project.nombre }</td>
-                    <td><a href="add/?@=${ project.idp }">Cargar horas</a></td>
+                    <td><a href="add/?@=${ project.idp }">Cargar horas</a> ||
+                    <a href="ver/?@=${ project.idp }">Historial de horas</a></td>
                 </tr>
             `
 
